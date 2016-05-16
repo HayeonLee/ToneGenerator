@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
     private TextView mTxt1;
-    private TextView mTxt2;
+    private TextView mTxt2,mTxt4,mTxt5;
     private SensorManager mSM;
     private Sensor myGravity;
 
@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
     private final int sampleRate = 8000;
     private final int numSamples = duration * sampleRate;
     private final double sample[] = new double[numSamples];
-    private int freqOfTone = 440; // hz
+    private int freqOfTone = 440; // hz - If change this value, then tone is changed
     private int pastFreq = freqOfTone;
     private final byte generatedSnd[] = new byte[2 * numSamples];
 
@@ -46,21 +46,18 @@ public class MainActivity extends Activity {
 
         mTxt1 = (TextView) findViewById(R.id.textView1);
         mTxt2 = (TextView) findViewById(R.id.textView2);
+        mTxt4 = (TextView) findViewById(R.id.textView4);
+        mTxt5 = (TextView) findViewById(R.id.textView5);
         mSM = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         myGravity = mSM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-/*		mSM.registerListener(mySensorListener, myGravity,
-				SensorManager.SENSOR_DELAY_NORMAL);*/
 
         task = new BackgroundTask();
         task.execute(1);
-        //mHandler.sendEmptyMessage(0);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-/*		mSM.registerListener(mySensorListener, myGravity,
-				SensorManager.SENSOR_DELAY_GAME);*/
 
     }
 
@@ -78,11 +75,11 @@ public class MainActivity extends Activity {
 
             if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             {
-                mTxt1.setText(Float.toString(event.values[0]));
+                mTxt1.setText(Float.toString(event.values[0])); // x value of accelerometer
+                mTxt4.setText(Float.toString(event.values[1])); // y value of accelerometer
+                mTxt5.setText(Float.toString(event.values[2])); // z value of accelerometer
 
-                freqOfTone = (int)Math.abs(event.values[0])*50 + 100;
-
-
+                freqOfTone = (int)Math.abs(event.values[0])*50 + 100; // change frequency of tone by x value
             }
         }
 
@@ -112,7 +109,7 @@ public class MainActivity extends Activity {
 
     void playSound(){
         try {
-            if(audioTrack!=null) {
+            if(audioTrack!=null) { //resource release
                 audioTrack.stop();
                 audioTrack.release();
             }
@@ -130,6 +127,7 @@ public class MainActivity extends Activity {
         //}
     }
 
+    //for non block UI
     class BackgroundTask extends AsyncTask<Integer , Integer , Integer> {
         protected void onPreExecute() {
             mSM.registerListener(mySensorListener, myGravity,
@@ -156,7 +154,7 @@ public class MainActivity extends Activity {
 
         protected void onProgressUpdate(Integer ... values) {
 
-            mTxt2.setText(Integer.toString(freqOfTone));
+            mTxt2.setText("Frequency = "+Integer.toString(freqOfTone)+"Hz");
         }
         protected void onPostExecute(Integer result) {
 
